@@ -19,6 +19,7 @@ def setup_jobs(
     submit: bool,
     clean: bool,
     email: str = "",
+    skip_gen: bool = False,
 ) -> None:
     """
     Generate slurm files for analysing TOIs
@@ -74,17 +75,18 @@ def setup_jobs(
             jobid=i,
             array_job=True,
         )
-        generation_fns.append(
-            make_slurm_file(
-                **common_array_kwargs,
-                cpu_per_task=1,
-                time="20:00",
-                jobname=f"gen",
-                mem="1000MB",
-                partition="datamover",
-                command=f"{cmd} --setup",
+        if not skip_gen:
+            generation_fns.append(
+                make_slurm_file(
+                    **common_array_kwargs,
+                    cpu_per_task=1,
+                    time="20:00",
+                    jobname=f"gen",
+                    mem="1000MB",
+                    partition="datamover",
+                    command=f"{cmd} --setup",
+                )
             )
-        )
         analysis_fns.append(
             make_slurm_file(
                 **common_array_kwargs,
