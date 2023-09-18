@@ -24,9 +24,7 @@ def create_slurm_stats_file(start: str, end: str, user: str, store_mem: bool):
     :param store_mem: yes is mem data to be stored
     """
     extra_args = "" if store_mem else "-x"
-    cmd = STATS_COMMAND.format(
-        start=start, end=end, user=user, extra_args=extra_args
-    )
+    cmd = STATS_COMMAND.format(start=start, end=end, user=user, extra_args=extra_args)
     os.system(cmd)
 
 

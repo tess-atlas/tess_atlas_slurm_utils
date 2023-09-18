@@ -89,9 +89,7 @@ def make_slurm_file(
     )
 
     jobid_str = f"_{jobid}" if jobid is not None else ""
-    jobfile_name = os.path.join(
-        submit_dir, f"slurm_{jobname}{jobid_str}_job.sh"
-    )
+    jobfile_name = os.path.join(submit_dir, f"slurm_{jobname}{jobid_str}_job.sh")
     with open(jobfile_name, "w") as f:
         f.write(file_contents)
     return os.path.abspath(jobfile_name)

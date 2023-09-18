@@ -107,9 +107,7 @@ def setup_jobs(
         command=f"make_webpages --webdir webpages --notebooks {notebook_dir} --add-api",
     )
 
-    submit_file = make_main_submitter(
-        generation_fns, analysis_fns, web_fn, submit_dir
-    )
+    submit_file = make_main_submitter(generation_fns, analysis_fns, web_fn, submit_dir)
 
     if submit:
         os.system(f"bash {submit_file}")
