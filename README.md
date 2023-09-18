@@ -1,2 +1,23 @@
-# tess_atlas_slurm_utils
-Some slurm script generation utilities for the tess-atlas
+# tess-atlas Slurm Utils
+A slurm script generation script for tess-atlas.
+
+## Usage
+```
+./make_slurm_job --help
+usage: make_slurm_jobs [--toi_csv <csv>] [--toi_number <toi_number>]
+
+Create slurm job for analysing TOIs (needs either toi-csv or toi-number)
+
+options:
+  -h, --help            show this help message and exit
+  --toi_csv TOI_CSV     CSV with the toi numbers to analyse (csv needs a column with `toi_numbers`)
+  --toi_number TOI_NUMBER
+                        The TOI number to be analysed (e.g. 103). Cannot be passed with toi-csv
+  --outdir OUTDIR       outdir for jobs. NOTE: If outdir already has analysed TOIs, (and the kwarg 'clean' not passed), then slurm files for only the TOIs w/o netcdf files
+                        generated)
+  --clean               Run all TOIs (even those that have completed analysis)
+  --module_loads MODULE_LOADS
+                        String containing all module loads in one line (each module separated by a space)
+  --submit              Submit once files created
+  --email EMAIL         email address to send job updates to (default: ''). If not passed, no emails sent.
+```
