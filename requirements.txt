@@ -1,0 +1,3 @@
+pandas
+tess_atlas
+jinja2
