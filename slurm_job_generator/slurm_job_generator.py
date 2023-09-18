@@ -97,17 +97,7 @@ def setup_jobs(
             )
         )
 
-    notebook_dir = os.path.join(outdir)
-    web_fn = make_slurm_file(
-        **kwargs,
-        cpu_per_task=1,
-        time="06:00:00",
-        jobname=f"web",
-        mem="64GB",
-        command=f"make_webpages --webdir webpages --notebooks {notebook_dir} --add-api",
-    )
-
-    submit_file = make_main_submitter(generation_fns, analysis_fns, web_fn, submit_dir)
+    submit_file = make_main_submitter(generation_fns, analysis_fns, submit_dir)
 
     if submit:
         os.system(f"bash {submit_file}")
