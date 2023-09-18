@@ -95,13 +95,12 @@ def make_slurm_file(
     return os.path.abspath(jobfile_name)
 
 
-def make_main_submitter(generation_fns, analysis_fns, webgen_fn, submit_dir):
+def make_main_submitter(generation_fns, analysis_fns, submit_dir):
     """Make a submit.sh file which submits all the jobs"""
     template = __load_template(SUBMIT_TEMPLATE)
     file_contents = template.render(
         generation_fns=to_str_list(generation_fns),
         analysis_fns=to_str_list(analysis_fns),
-        webgen_fn=webgen_fn,
     )
     subfn = os.path.join(submit_dir, "submit.sh")
     with open(subfn, "w") as f:
