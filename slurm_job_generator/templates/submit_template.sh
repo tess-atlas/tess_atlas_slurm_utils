@@ -16,6 +16,4 @@ for index in ${!ANALYSIS_FN[*]}; do
   ANLYS_IDS+=($ANLYS_ID)
 done
 
-JOBS=${ANLYS_IDS[@]}
-
 squeue -u $USER -o '%.4u %.20j %.10A %.4C %.10E %R'
