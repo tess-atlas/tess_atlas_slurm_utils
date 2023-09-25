@@ -5,7 +5,7 @@ ANALYSIS_FN=({{analysis_fns}})
 ANLYS_IDS=()
 
 for index in ${!ANALYSIS_FN[*]}; do
-  if [ ! -z $ANALYSIS_FN ]; then
+  if [ ! -z $GENERATION_FN ]; then
     >&2 echo "Submitting ${GENERATION_FN[$index]} ${ANALYSIS_FN[$index]}"
     GEN_ID=$(sbatch --parsable ${GENERATION_FN[$index]})
     ANLYS_ID=$(sbatch --parsable --dependency=aftercorr:$GEN_ID ${ANALYSIS_FN[$index]})
