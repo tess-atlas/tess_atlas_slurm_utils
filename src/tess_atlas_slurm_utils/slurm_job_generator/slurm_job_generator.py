@@ -20,6 +20,7 @@ def setup_jobs(
     clean: bool,
     email: str = "",
     skip_gen: bool = False,
+    partition: str = "",
 ) -> None:
     """
     Generate slurm files for analysing TOIs
@@ -94,6 +95,7 @@ def setup_jobs(
                 time="300:00",
                 jobname=f"pe",
                 mem="1500MB",
+                partition=partition,
                 command=cmd,
                 tmp_mem="500M",
             )
