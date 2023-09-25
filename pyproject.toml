@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tess_atlas_slurm_utils"
+authors = [{ name = "Avi Vajpeyi" }]
+description = "SLURM script generation for TESS Atlas catalogue analysis on OzSTAR"
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "MIT" }
+
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Astronomy",
+  "Topic :: Scientific/Engineering :: Physics",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+]
+
+dependencies = ["pandas", "jinja2", "tess_atlas"]
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/tess-atlas/tess_atlas_slurm_utils"
+
+[project.scripts]
+make_slurm_job = "tess_atlas_slurm_utils.make_slurm_job:main"
+
+[tool.setuptools.package-data]
+"tess_atlas_slurm_utils.slurm_job_generator" = ["templates/*.sh"]
+
+[tool.setuptools_scm]
+
+[tool.black]
+line-length = 79
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 79

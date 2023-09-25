@@ -8,11 +8,11 @@ If the outdir already has analysed TOIs, then slurm files for only the unanalyse
 import argparse
 import os
 
-from slurm_job_generator import parse_toi_numbers, setup_jobs
+from .slurm_job_generator import parse_toi_numbers, setup_jobs
 
 PROG = "make_slurm_jobs"
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Create slurm job for analysing TOIs (needs either toi-csv or toi-number)",
         prog=PROG,
@@ -78,3 +78,6 @@ if __name__ == "__main__":
         email=args.email,
         skip_gen=args.skip_gen
     )
+
+if __name__ == "__main__":
+    main()
