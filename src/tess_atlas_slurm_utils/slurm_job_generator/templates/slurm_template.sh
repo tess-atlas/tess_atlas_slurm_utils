@@ -14,6 +14,7 @@
 {% if email!="" -%}      #SBATCH --mail-type=ALL{% endif %}
 {% if account!="" -%}      #SBATCH --account={{account}}{% endif %}
 
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 module load {{module_loads}}
 
 {{load_env}}
