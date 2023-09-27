@@ -27,7 +27,6 @@ def make_slurm_file(
     time: str,
     mem: str,
     submit_dir: str,
-    partition: Optional[str] = "",
     jobid: Optional[int] = None,
     array_args: Optional[List[int]] = None,
     array_job: Optional[bool] = False,
@@ -45,7 +44,6 @@ def make_slurm_file(
     :param time: Time limit for the job
     :param mem: Memory limit for the job
     :param submit_dir: Directory to save the slurm file to
-    :param partition: Partition to submit the job on
     :param jobid: Job ID (for array jobs)tail
     :param array_args: Array arguments (for array jobs)
     :param array_job: Whether the job is an array job
@@ -65,7 +63,6 @@ def make_slurm_file(
         cpu_per_task=cpu_per_task,
         load_env=get_python_source_command(),
         mem=mem,
-        partition=partition,
         array_job=str(array_job),
         command=command,
         email=email,
@@ -95,12 +92,13 @@ def make_slurm_file(
     return os.path.abspath(jobfile_name)
 
 
-def make_main_submitter(generation_fns, analysis_fns, submit_dir):
+def make_main_submitter(generation_fns, analysis_fns, submit_dir, partition=''):
     """Make a submit.sh file which submits all the jobs"""
     template = __load_template(SUBMIT_TEMPLATE)
     file_contents = template.render(
         generation_fns=to_str_list(generation_fns),
         analysis_fns=to_str_list(analysis_fns),
+        partition=partition,
     )
     subfn = os.path.join(submit_dir, "submit.sh")
     with open(subfn, "w") as f:

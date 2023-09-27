@@ -84,7 +84,6 @@ def setup_jobs(
                     time="20:00",
                     jobname=f"gen",
                     mem="1000MB",
-                    partition="datamover",
                     command=f"{cmd} --setup",
                 )
             )
@@ -95,13 +94,12 @@ def setup_jobs(
                 time="300:00",
                 jobname=f"pe",
                 mem="1500MB",
-                partition=partition,
                 command=cmd,
                 tmp_mem="500M",
             )
         )
 
-    submit_file = make_main_submitter(generation_fns, analysis_fns, submit_dir)
+    submit_file = make_main_submitter(generation_fns, analysis_fns, submit_dir, partition)
 
     if submit:
         os.system(f"bash {submit_file}")
