@@ -3,7 +3,7 @@ A slurm script generation script for tess-atlas.
 
 ## Usage
 ```
-./make_slurm_job --help
+make_slurm_job --help
 usage: make_slurm_jobs [--toi_csv <csv>] [--toi_number <toi_number>]
 
 Create slurm job for analysing TOIs (needs either toi-csv or toi-number)
