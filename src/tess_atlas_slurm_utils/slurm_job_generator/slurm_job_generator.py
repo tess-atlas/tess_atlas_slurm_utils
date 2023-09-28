@@ -20,6 +20,7 @@ def setup_jobs(
     clean: bool,
     email: str = "",
     skip_gen: bool = False,
+    partition: str = "",
 ) -> None:
     """
     Generate slurm files for analysing TOIs
@@ -83,7 +84,6 @@ def setup_jobs(
                     time="20:00",
                     jobname=f"gen",
                     mem="1000MB",
-                    partition="datamover",
                     command=f"{cmd} --setup",
                 )
             )
@@ -99,7 +99,7 @@ def setup_jobs(
             )
         )
 
-    submit_file = make_main_submitter(generation_fns, analysis_fns, submit_dir)
+    submit_file = make_main_submitter(generation_fns, analysis_fns, submit_dir, partition)
 
     if submit:
         os.system(f"bash {submit_file}")

@@ -8,12 +8,12 @@
 #SBATCH --mem={{mem}}
 #SBATCH --cpus-per-task={{cpu_per_task}}
 {% if tmp_mem!="" -%}      #SBATCH --tmp={{tmp_mem}}{% endif %}
-{% if partition!="" -%}      #SBATCH --partition={{partition}}{% endif %}
 {% if array_job=="True" -%}      #SBATCH --array=0-{{array_end}}{% endif %}
 {% if email!="" -%}      #SBATCH --mail-user={{email}}{% endif %}
 {% if email!="" -%}      #SBATCH --mail-type=ALL{% endif %}
 {% if account!="" -%}      #SBATCH --account={{account}}{% endif %}
 
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 module load {{module_loads}}
 
 {{load_env}}
