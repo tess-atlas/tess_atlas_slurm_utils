@@ -29,7 +29,7 @@ dynamic = ["version"]
 homepage = "https://github.com/tess-atlas/tess_atlas_slurm_utils"
 
 [project.scripts]
-make_slurm_job = "tess_atlas_slurm_utils.make_slurm_job:main"
+make_slurm_job = "tess_atlas_slurm_utils.cli:main"
 tess_jobstats = "tess_atlas_slurm_utils.slurm_data_collector:main"
 
 [tool.setuptools.package-data]
