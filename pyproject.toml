@@ -59,7 +59,7 @@ profile = "black"
 line_length = 79
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-report term-missing"
+addopts = "--cov=tess_atlas_slurm_utils --cov-report term-missing"
 minversion = "6.0"
 testpaths = ["tests"]
 
