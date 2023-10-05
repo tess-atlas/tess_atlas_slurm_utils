@@ -59,12 +59,12 @@ profile = "black"
 line_length = 79
 
 [tool.pytest.ini_options]
-addopts = "--cov=. --cov-report term-missing"
+addopts = "--cov --cov-report term-missing"
 minversion = "6.0"
 testpaths = ["tests"]
 
 [tool.coverage.run]
 omit = [
-    "tess_atlas_slurm_utils/jobstats_collector.py",
+    "*stats_collector.py",
     "tests/*"
 ]
