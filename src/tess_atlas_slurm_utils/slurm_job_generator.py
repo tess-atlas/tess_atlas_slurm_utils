@@ -10,6 +10,22 @@ MAX_ARRAY_SIZE = 2048
 CMD = "srun run_toi ${ARRAY_ARGS[$SLURM_ARRAY_TASK_ID]} --outdir {outdir}"
 
 
+ANALYSIS_JOB_SETTINGS = dict(
+    cpu_per_task=2,
+    time="300:00",
+    jobname=f"pe",
+    mem="1500MB",
+    tmp_mem="500M",
+)
+
+GENERATION_JOB_SETTINGS = dict(
+    cpu_per_task=1,
+    time="20:00",
+    jobname=f"gen",
+    mem="1000MB",
+)
+
+
 def setup_jobs(
     toi_numbers: List[int],
     outdir: str,
@@ -66,7 +82,7 @@ def setup_jobs(
     generation_fns, analysis_fns = [], []
     for i, toi_batch in enumerate(toi_batches):
         kwargs.update(dict(array_args=toi_batch, jobid=i))
-        gen_fn, anlys_fn = __generate_job_for_batch(kwargs.copy(), skip_gen)
+        gen_fn, anlys_fn = __generate_job_for_batch(kwargs.copy(), skip_gen, quickrun)
         generation_fns.append(gen_fn)
         analysis_fns.append(anlys_fn)
 
@@ -83,26 +99,18 @@ def setup_jobs(
         logger.info(f"To run job:\n>>> bash {submit_file}")
 
 
-def __generate_job_for_batch(kwargs, skip_gen):
+def __generate_job_for_batch(kwargs, skip_gen, quickrun):
     cmd = kwargs.pop("command")
     gen_fname = None
     if not skip_gen:
         gen_fname = make_slurm_file(
-            **kwargs,
-            cpu_per_task=1,
-            time="20:00",
-            jobname=f"gen",
-            mem="1000MB",
-            command=f"{cmd} --setup",
+            **kwargs, **GENERATION_JOB_SETTINGS, command=f"{cmd} --setup"
         )
-
+    if quickrun:
+        ANALYSIS_JOB_SETTINGS["time"] = "20:00"
+        ANALYSIS_JOB_SETTINGS["mem"] = "1000MB"
+        ANALYSIS_JOB_SETTINGS["cpu_per_task"] = 1
     analysis_fn = make_slurm_file(
-        **kwargs,
-        cpu_per_task=2,
-        time="300:00",
-        jobname=f"pe",
-        mem="1500MB",
-        tmp_mem="500M",
-        command=cmd,
+        **kwargs, **ANALYSIS_JOB_SETTINGS, command=cmd,
     )
     return gen_fname, analysis_fn

@@ -35,7 +35,7 @@ def get_unprocessed_toi_numbers(toi_numbers: List, outdir: str) -> List[int]:
 
 
 def parse_toi_numbers(
-    toi_csv: Union[str, None], toi_number: Union[int, None], outdir: str
+    toi_csv: Union[str, None]=None, toi_number: Union[int, None]=None, outdir: str='./'
 ) -> List[int]:
     if (
         toi_csv and toi_number is None
