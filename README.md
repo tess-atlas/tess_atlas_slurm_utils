@@ -1,4 +1,6 @@
-# tess-atlas Slurm Utils
+# TESS-Atlas Slurm Utils
+[![Coverage Status](https://coveralls.io/repos/github/tess-atlas/tess_atlas_slurm_utils/badge.svg?branch=main)](https://coveralls.io/github/tess-atlas/tess_atlas_slurm_utils?branch=main)
+
 A slurm script generation script for tess-atlas.
 
 ## Usage
