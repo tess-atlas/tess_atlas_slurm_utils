@@ -1,16 +1,18 @@
 """This module interfaces with the TOI data."""
 import glob
-import logging
 import os
 import re
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import pandas as pd
 
-from tess_atlas.data.exofop import EXOFOP_DATA
-from tess_atlas.logger import LOGGER_NAME
+from .utils import logger
 
-logger = logging.getLogger(LOGGER_NAME)
+__all__ = ["parse_toi_numbers", "get_unprocessed_toi_numbers"]
+
+TOI_CSV = "https://tess-atlas.github.io/exofop_data/exofop_data.csv"
+LK_AVAIL = "Lightcurve Available"
+TOI_INT = "TOI int"  # 101
 
 
 def __get_completed_toi_pe_results_paths(outdir: str) -> pd.DataFrame:
@@ -30,8 +32,8 @@ def get_unprocessed_toi_numbers(toi_numbers: List, outdir: str) -> List[int]:
     return list(tois.difference(processed_tois))
 
 
-def parse_toi_numbers(toi_csv: str, toi_number: int, outdir: str) -> List[int]:
-    if toi_csv and toi_number is None:  # get TOI numbers from CSV
+def parse_toi_numbers(toi_csv: Union[str, None], toi_number: Union[int, None], outdir: str) -> List[int]:
+    if toi_csv and toi_number is None:  # get TOI numbers from CSV (gets the latest TOI numbers)
         toi_numbers = __read_csv_toi_numbers(toi_csv)
     elif toi_csv is None and toi_number:  # get single TOI number
         toi_numbers = [toi_number]
@@ -48,9 +50,8 @@ def __read_csv_toi_numbers(toi_csv: str) -> List[int]:
 
 def __make_toi_csv(fname: str, toi_numbers: Optional[List[int]] = []) -> List[int]:
     if len(toi_numbers) == 0:
-        toi_numbers = EXOFOP_DATA.get_toi_list(
-            category=None, remove_toi_without_lk=True
-        )
+        data = pd.read_csv(TOI_CSV)[[TOI_INT, LK_AVAIL]]
+        toi_numbers = data[data[LK_AVAIL] == True][TOI_INT].values
     toi_numbers = list(set([int(i) for i in toi_numbers]))
     data = pd.DataFrame(dict(toi_numbers=toi_numbers))
     data.to_csv(fname, index=False)

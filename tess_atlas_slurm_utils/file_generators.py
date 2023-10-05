@@ -4,8 +4,7 @@ from typing import List, Optional
 import jinja2
 from jinja2 import Template
 
-from tess_atlas.file_management import mkdir
-from .slurm_utils import get_python_source_command, to_str_list
+from .utils import get_python_source_command, to_str_list, mkdir
 
 SLURM_TEMPLATE = "slurm_template.sh"
 SUBMIT_TEMPLATE = "submit_template.sh"
@@ -20,20 +19,20 @@ def __load_template(template_file: str) -> Template:
 
 
 def make_slurm_file(
-    outdir: str,
-    module_loads: str,
-    jobname: str,
-    cpu_per_task: int,
-    time: str,
-    mem: str,
-    submit_dir: str,
-    jobid: Optional[int] = None,
-    array_args: Optional[List[int]] = None,
-    array_job: Optional[bool] = False,
-    command: Optional[str] = None,
-    email: Optional[str] = "",
-    tmp_mem: Optional[str] = "",
-    account: Optional[str] = "",
+        outdir: str,
+        module_loads: str,
+        jobname: str,
+        cpu_per_task: int,
+        time: str,
+        mem: str,
+        submit_dir: str,
+        jobid: Optional[int] = None,
+        array_args: Optional[List[int]] = None,
+        array_job: Optional[bool] = False,
+        command: Optional[str] = None,
+        email: Optional[str] = "",
+        tmp_mem: Optional[str] = "",
+        account: Optional[str] = "",
 ) -> str:
     """Make a slurm file for submitting a job to the cluster
 
@@ -92,8 +91,15 @@ def make_slurm_file(
     return os.path.abspath(jobfile_name)
 
 
+def __remove_null_values(l):
+    return [i for i in l if i is not None]
+
+
 def make_main_submitter(generation_fns, analysis_fns, submit_dir, partition=''):
     """Make a submit.sh file which submits all the jobs"""
+    generation_fns = __remove_null_values(generation_fns)
+    analysis_fns = __remove_null_values(analysis_fns)
+
     template = __load_template(SUBMIT_TEMPLATE)
     file_contents = template.render(
         generation_fns=to_str_list(generation_fns),

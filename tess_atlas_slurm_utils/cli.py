@@ -8,11 +8,13 @@ If the outdir already has analysed TOIs, then slurm files for only the unanalyse
 import argparse
 import os
 
-from .slurm_job_generator import parse_toi_numbers, setup_jobs
+from .toi_data_interface import parse_toi_numbers
+from .slurm_job_generator import setup_jobs
 
 PROG = "make_slurm_jobs"
 
-def main():
+
+def parse_args():
     parser = argparse.ArgumentParser(
         description="Create slurm job for analysing TOIs (needs either toi-csv or toi-number)",
         prog=PROG,
@@ -64,11 +66,13 @@ def main():
         help="Skip generation step. Just do the gen+analysis as one job.",
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
     os.makedirs(args.outdir, exist_ok=True)
-
     toi_numbers = parse_toi_numbers(args.toi_csv, args.toi_number, args.outdir)
-
     setup_jobs(
         toi_numbers=toi_numbers,
         outdir=args.outdir,
@@ -78,6 +82,7 @@ def main():
         email=args.email,
         skip_gen=args.skip_gen
     )
+
 
 if __name__ == "__main__":
     main()

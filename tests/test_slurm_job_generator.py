@@ -1,67 +1,82 @@
 import os
-import unittest
-from unittest.mock import patch
-
-import pandas as pd
-
-# from tess_atlas_slurm_utils.cli.make_slurm_job_cli import get_cli_args
-from tess_atlas_slurm_utils.slurm_job_generator import slurm_job_generator
-from tess_atlas_slurm_utils.slurm_job_generator.slurm_job_generator import setup_jobs
-
-CLEAN_AFTER = False
+import pytest
+from tess_atlas_slurm_utils import slurm_job_generator
+from tess_atlas_slurm_utils.slurm_job_generator import setup_jobs
+from tess_atlas_slurm_utils import cli
+from conftest import generate_toi_files
 
 TEST_ARRAY_SIZE = 15
 
-# FIXME: this test is not working
 
-class JobgenTest(unittest.TestCase):
-    def setUp(self):
-        self.start_dir = os.getcwd()
-        self.outdir = f"test_jobgen"
+@pytest.fixture
+def outdir(tmpdir):
+    return tmpdir
 
-        os.makedirs(self.outdir, exist_ok=True)
-        self.module_loads = "module load 1"
-        self.toi_list = "module load 1"
-        self.toi_fn = f"{self.outdir}/toi.csv"
-        self.toi_nums = [i for i in range(100, 130)]
-        self.make_toi_file()
-        self.toi_int = pd.read_csv(self.toi_fn).toi_numbers.values.tolist()
 
-    def make_toi_file(self):
-        df = pd.DataFrame(
-            dict(
-                id=[i for i, _ in enumerate(self.toi_nums)],
-                toi_numbers=self.toi_nums,
-            )
-        )
-        df.to_csv(self.toi_fn, index=False)
+def test_folder_and_file_generation(outdir, monkeypatch):
+    # Mock the MAX_ARRAY_SIZE using pytest's monkeypatch
+    monkeypatch.setattr(slurm_job_generator, "MAX_ARRAY_SIZE", TEST_ARRAY_SIZE)
 
-    def tearDown(self):
-        import shutil
-
-        if os.path.exists(self.outdir) and CLEAN_AFTER:
-            shutil.rmtree(self.outdir)
-
-    @patch(
-        "tess_atlas.slurm_job_generator.slurm_job_generator.MAX_ARRAY_SIZE",
-        TEST_ARRAY_SIZE,
+    n_tois = 30
+    assert slurm_job_generator.MAX_ARRAY_SIZE == TEST_ARRAY_SIZE
+    setup_jobs(
+        toi_numbers=[i for i in range(n_tois)],
+        outdir=outdir,
+        module_loads="mod 1",
+        submit=False,
+        clean=True,
     )
-    def test_slurmfile(self):
-        assert slurm_job_generator.MAX_ARRAY_SIZE == TEST_ARRAY_SIZE
-        setup_jobs(self.toi_int, self.outdir, self.module_loads, False, True)
 
-    def test_single_job_slurmfile(self):
-        setup_jobs(
-            toi_numbers=self.toi_nums,
-            outdir=self.outdir,
-            module_loads="mod 1",
-            submit=False,
-            clean=True,
-        )
-
-    # def test_parser(self):
-    #     get_cli_args(["--toi_number", "1"])
+    # Check that the outdir has correct files and directories
+    assert os.listdir(outdir) == ['log_pe', 'log_gen', 'submit']
+    n_batches = n_tois // TEST_ARRAY_SIZE
+    # Check that the slurmfiles created ['submit.sh', 'slurm_pe_{i}_job.sh', 'slurm_gen_{i}_job.sh']
+    assert os.path.isfile(outdir / 'submit' / 'submit.sh')
+    for i in range(n_batches):
+        assert os.path.isfile(outdir / 'submit' / f'slurm_pe_{i}_job.sh')
+        assert os.path.isfile(outdir / 'submit' / f'slurm_gen_{i}_job.sh')
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_jobs_only_for_unanalysed_tois(outdir, caplog):
+    caplog.set_level("INFO")
+    tois = [i for i in range(100, 105)]
+    # Generate the toi files (make it seem like they've been analysed)
+    generate_toi_files(outdir, tois)
+    new_toi_list = [i for i in range(100, 110)]
+    setup_jobs(
+        toi_numbers=new_toi_list,
+        outdir=outdir,
+        module_loads="mod 1",
+        submit=False,
+        clean=False,
+    )
+    # Check that the log message is correct
+    n_tois_to_process = len(new_toi_list) - len(tois)
+    n_tois_total = len(new_toi_list)
+    n_tois_skipped = len(tois)
+    assert f"TOIs to be processed: {n_tois_to_process} (not analyzing {n_tois_skipped}/{n_tois_total})" in caplog.text
+
+
+def test_quickrun(outdir):
+    setup_jobs(
+        toi_numbers=[1], outdir=outdir,
+        module_loads="mod 1", submit=False,
+        clean=False, quickrun=True,
+    )
+    # check that outdir/submit/slurm_pe_0_job.sh contains the quickrun flag
+    with open(outdir / 'submit' / 'slurm_gen_0_job.sh', 'r') as f:
+        txt = f.read()
+    assert '--quickrun' in txt
+    assert '--setup' in txt
+
+
+def test_cli(outdir, monkeypatch):
+    monkeypatch.setattr('sys.argv', ['tess_atlas_slurm_utils', '--toi_number', '1', '--outdir', str(outdir)])
+    cli.main()
+    monkeypatch.setattr('sys.argv', ['tess_atlas_slurm_utils', '--outdir', str(outdir)])
+    cli.main()
+    monkeypatch.setattr('sys.argv',
+                        ['tess_atlas_slurm_utils', '--toi_csv', str(outdir / 'tois.csv'), '--outdir', str(outdir)])
+    cli.main()
+
+
