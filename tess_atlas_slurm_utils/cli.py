@@ -84,7 +84,7 @@ def main():
         submit=args.submit,
         clean=args.clean,
         email=args.email,
-        skip_gen=args.skip_gen
+        skip_gen=args.skip_gen,
     )
 
 

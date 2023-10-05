@@ -28,13 +28,13 @@ def test_folder_and_file_generation(outdir, monkeypatch):
     )
 
     # Check that the outdir has correct files and directories
-    assert set(os.listdir(outdir)) == {'log_pe', 'log_gen', 'submit'}
+    assert set(os.listdir(outdir)) == {"log_pe", "log_gen", "submit"}
     n_batches = n_tois // TEST_ARRAY_SIZE
     # Check that the slurmfiles created ['submit.sh', 'slurm_pe_{i}_job.sh', 'slurm_gen_{i}_job.sh']
-    assert os.path.isfile(outdir / 'submit' / 'submit.sh')
+    assert os.path.isfile(outdir / "submit" / "submit.sh")
     for i in range(n_batches):
-        assert os.path.isfile(outdir / 'submit' / f'slurm_pe_{i}_job.sh')
-        assert os.path.isfile(outdir / 'submit' / f'slurm_gen_{i}_job.sh')
+        assert os.path.isfile(outdir / "submit" / f"slurm_pe_{i}_job.sh")
+        assert os.path.isfile(outdir / "submit" / f"slurm_gen_{i}_job.sh")
 
 
 def test_jobs_only_for_unanalysed_tois(outdir, caplog):
@@ -54,31 +54,53 @@ def test_jobs_only_for_unanalysed_tois(outdir, caplog):
     n_tois_to_process = len(new_toi_list) - len(tois)
     n_tois_total = len(new_toi_list)
     n_tois_skipped = len(tois)
-    assert f"TOIs to be processed: {n_tois_to_process} (not analyzing {n_tois_skipped}/{n_tois_total})" in caplog.text
+    assert (
+        f"TOIs to be processed: {n_tois_to_process} (not analyzing {n_tois_skipped}/{n_tois_total})"
+        in caplog.text
+    )
 
 
 def test_quickrun(outdir):
     setup_jobs(
-        toi_numbers=[1], outdir=outdir,
-        module_loads="mod 1", submit=False,
-        clean=False, quickrun=True,
+        toi_numbers=[1],
+        outdir=outdir,
+        module_loads="mod 1",
+        submit=False,
+        clean=False,
+        quickrun=True,
     )
     # check that outdir/submit/slurm_pe_0_job.sh contains the quickrun flag
-    with open(outdir / 'submit' / 'slurm_gen_0_job.sh', 'r') as f:
+    with open(outdir / "submit" / "slurm_gen_0_job.sh", "r") as f:
         txt = f.read()
-    assert '--quickrun' in txt
-    assert '--setup' in txt
+    assert "--quickrun" in txt
+    assert "--setup" in txt
 
 
 def test_cli(outdir, monkeypatch):
-    monkeypatch.setattr('sys.argv', ['tess_atlas_slurm_utils', '--toi_number', '1', '--outdir', str(outdir)])
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "tess_atlas_slurm_utils",
+            "--toi_number",
+            "1",
+            "--outdir",
+            str(outdir),
+        ],
+    )
     cli.main()
-    monkeypatch.setattr('sys.argv', ['tess_atlas_slurm_utils', '--outdir', str(outdir)])
+    monkeypatch.setattr(
+        "sys.argv", ["tess_atlas_slurm_utils", "--outdir", str(outdir)]
+    )
     cli.main()
-    monkeypatch.setattr('sys.argv', [
-        'tess_atlas_slurm_utils',
-        '--toi_csv', str(outdir / 'tois.csv'),
-        '--outdir', str(outdir),
-        '--quickrun'
-    ])
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "tess_atlas_slurm_utils",
+            "--toi_csv",
+            str(outdir / "tois.csv"),
+            "--outdir",
+            str(outdir),
+            "--quickrun",
+        ],
+    )
     cli.main()

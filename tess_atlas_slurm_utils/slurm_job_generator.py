@@ -11,15 +11,15 @@ CMD = "srun run_toi ${ARRAY_ARGS[$SLURM_ARRAY_TASK_ID]} --outdir {outdir}"
 
 
 def setup_jobs(
-        toi_numbers: List[int],
-        outdir: str,
-        module_loads: str,
-        submit: bool,
-        clean: bool,
-        email: str = "",
-        skip_gen: bool = False,
-        quickrun: bool = False,
-        partition: str = "",
+    toi_numbers: List[int],
+    outdir: str,
+    module_loads: str,
+    submit: bool,
+    clean: bool,
+    email: str = "",
+    skip_gen: bool = False,
+    quickrun: bool = False,
+    partition: str = "",
 ) -> None:
     """
     Set up and submit a batch of jobs for processing TOIs.
@@ -48,7 +48,10 @@ def setup_jobs(
     logger.info(msg)
 
     submit_dir = mkdir(outdir, "submit")
-    toi_batches = [toi_numbers[i: i + MAX_ARRAY_SIZE] for i in range(0, len(toi_numbers), MAX_ARRAY_SIZE)]
+    toi_batches = [
+        toi_numbers[i : i + MAX_ARRAY_SIZE]
+        for i in range(0, len(toi_numbers), MAX_ARRAY_SIZE)
+    ]
 
     # Common keyword arguments for job generation
     kwargs = dict(
@@ -57,7 +60,7 @@ def setup_jobs(
         submit_dir=submit_dir,
         email=email,
         array_job=True,
-        command=CMD if not quickrun else CMD + " --quickrun"
+        command=CMD if not quickrun else CMD + " --quickrun",
     )
 
     generation_fns, analysis_fns = [], []
@@ -68,7 +71,9 @@ def setup_jobs(
         analysis_fns.append(anlys_fn)
 
     # Generate the main job submission file
-    submit_file = make_main_submitter(generation_fns, analysis_fns, submit_dir, partition)
+    submit_file = make_main_submitter(
+        generation_fns, analysis_fns, submit_dir, partition
+    )
 
     # Submit or print the job submission command
     if submit:

@@ -19,20 +19,20 @@ def __load_template(template_file: str) -> Template:
 
 
 def make_slurm_file(
-        outdir: str,
-        module_loads: str,
-        jobname: str,
-        cpu_per_task: int,
-        time: str,
-        mem: str,
-        submit_dir: str,
-        jobid: Optional[int] = None,
-        array_args: Optional[List[int]] = None,
-        array_job: Optional[bool] = False,
-        command: Optional[str] = None,
-        email: Optional[str] = "",
-        tmp_mem: Optional[str] = "",
-        account: Optional[str] = "",
+    outdir: str,
+    module_loads: str,
+    jobname: str,
+    cpu_per_task: int,
+    time: str,
+    mem: str,
+    submit_dir: str,
+    jobid: Optional[int] = None,
+    array_args: Optional[List[int]] = None,
+    array_job: Optional[bool] = False,
+    command: Optional[str] = None,
+    email: Optional[str] = "",
+    tmp_mem: Optional[str] = "",
+    account: Optional[str] = "",
 ) -> str:
     """Make a slurm file for submitting a job to the cluster
 
@@ -85,7 +85,9 @@ def make_slurm_file(
     )
 
     jobid_str = f"_{jobid}" if jobid is not None else ""
-    jobfile_name = os.path.join(submit_dir, f"slurm_{jobname}{jobid_str}_job.sh")
+    jobfile_name = os.path.join(
+        submit_dir, f"slurm_{jobname}{jobid_str}_job.sh"
+    )
     with open(jobfile_name, "w") as f:
         f.write(file_contents)
     return os.path.abspath(jobfile_name)
@@ -95,7 +97,9 @@ def __remove_null_values(l):
     return [i for i in l if i is not None]
 
 
-def make_main_submitter(generation_fns, analysis_fns, submit_dir, partition=''):
+def make_main_submitter(
+    generation_fns, analysis_fns, submit_dir, partition=""
+):
     """Make a submit.sh file which submits all the jobs"""
     generation_fns = __remove_null_values(generation_fns)
     analysis_fns = __remove_null_values(analysis_fns)

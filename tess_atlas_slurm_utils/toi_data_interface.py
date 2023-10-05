@@ -27,13 +27,19 @@ def __get_completed_toi_pe_results_paths(outdir: str) -> pd.DataFrame:
 
 def get_unprocessed_toi_numbers(toi_numbers: List, outdir: str) -> List[int]:
     """Filter toi_numbers to only include those that have not been processed"""
-    processed_tois = set(__get_completed_toi_pe_results_paths(outdir).TOI.values)
+    processed_tois = set(
+        __get_completed_toi_pe_results_paths(outdir).TOI.values
+    )
     tois = set(toi_numbers)
     return list(tois.difference(processed_tois))
 
 
-def parse_toi_numbers(toi_csv: Union[str, None], toi_number: Union[int, None], outdir: str) -> List[int]:
-    if toi_csv and toi_number is None:  # get TOI numbers from CSV (gets the latest TOI numbers)
+def parse_toi_numbers(
+    toi_csv: Union[str, None], toi_number: Union[int, None], outdir: str
+) -> List[int]:
+    if (
+        toi_csv and toi_number is None
+    ):  # get TOI numbers from CSV (gets the latest TOI numbers)
         toi_numbers = __read_csv_toi_numbers(toi_csv)
     elif toi_csv is None and toi_number:  # get single TOI number
         toi_numbers = [toi_number]
@@ -48,7 +54,9 @@ def __read_csv_toi_numbers(toi_csv: str) -> List[int]:
     return list(pd.read_csv(toi_csv).toi_numbers.values)
 
 
-def __make_toi_csv(fname: str, toi_numbers: Optional[List[int]] = []) -> List[int]:
+def __make_toi_csv(
+    fname: str, toi_numbers: Optional[List[int]] = []
+) -> List[int]:
     if len(toi_numbers) == 0:
         data = pd.read_csv(TOI_CSV)[[TOI_INT, LK_AVAIL]]
         toi_numbers = data[data[LK_AVAIL] == True][TOI_INT].values

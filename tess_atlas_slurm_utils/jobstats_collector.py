@@ -7,7 +7,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 SLURM_STATS_FNAME = "jobstats.txt"
-STATS_COMMAND = "sacct -S {start} -E {end} -u {user} -X -o 'jobname%-40,cputimeraw,State,MaxRSS' --parsable2 > " + SLURM_STATS_FNAME
+STATS_COMMAND = (
+    "sacct -S {start} -E {end} -u {user} -X -o 'jobname%-40,cputimeraw,State,MaxRSS' --parsable2 > "
+    + SLURM_STATS_FNAME
+)
 
 SEC_IN_HR = 60.0 * 60.0
 
@@ -36,7 +39,7 @@ def create_slurm_stats_file(start: str, end: str, user: str, fname: str):
     process.wait()
     data = __slurm_raw_data_to_dataframe()
     # remove all non 'toi' jobs
-    data = data[data['JobName'].str.contains('toi')]
+    data = data[data["JobName"].str.contains("toi")]
     data.to_csv(fname, index=False)
     plot_jobs_runtime_histogram(fname)
     os.remove(SLURM_STATS_FNAME)
@@ -46,17 +49,22 @@ def create_slurm_stats_file(start: str, end: str, user: str, fname: str):
 def plot_jobs_runtime_histogram(fname: str):
     """Plot a histogram of the job runtimes"""
     data = pd.read_csv(fname)
-    total_cpu_hrs = data['CPUTimeRAW'].sum() / SEC_IN_HR
-    data = data[data['State'] == 'COMPLETED']
-    data = data[data['CPUTimeRAW'] > 0]
-    hrs = data['CPUTimeRAW'] / SEC_IN_HR
+    total_cpu_hrs = data["CPUTimeRAW"].sum() / SEC_IN_HR
+    data = data[data["State"] == "COMPLETED"]
+    data = data[data["CPUTimeRAW"] > 0]
+    hrs = data["CPUTimeRAW"] / SEC_IN_HR
     bins = np.geomspace(0.1, 8, 100)
     plt.hist(hrs, bins=bins)
     plt.xlabel("CPU Hrs")
     plt.ylabel("Count")
-    plt.xscale('log')
+    plt.xscale("log")
     # add txtbox with the TOTAL CPU Hrs at top left corner
-    plt.text(0.1, 0.9, f"Failed + passed job Hrs: {int(total_cpu_hrs):,}Hrs", transform=plt.gca().transAxes)
+    plt.text(
+        0.1,
+        0.9,
+        f"Failed + passed job Hrs: {int(total_cpu_hrs):,}Hrs",
+        transform=plt.gca().transAxes,
+    )
     plt.title("Histogram of CPU Hrs for all COMPLETED jobs")
     plt.tight_layout()
     plt.savefig(fname.replace(".csv", ".png"))
@@ -67,7 +75,7 @@ def __slurm_raw_data_to_dataframe() -> pd.DataFrame:
     Returns dataframe with the following columns:
     JobName|CPUTimeRAW|State|MaxRSS
     """
-    with open(SLURM_STATS_FNAME, 'r') as f:
+    with open(SLURM_STATS_FNAME, "r") as f:
         filecontents = f.read().split("\n")
     header = filecontents[0].split("|")
     data = filecontents[1:]
@@ -76,7 +84,7 @@ def __slurm_raw_data_to_dataframe() -> pd.DataFrame:
     data = data.T
     data_dict = {header[i]: data[i] for i in range(len(header))}
     data = pd.DataFrame(data_dict)
-    data['CPUTimeRAW'] = data['CPUTimeRAW'].astype('float64')
+    data["CPUTimeRAW"] = data["CPUTimeRAW"].astype("float64")
     return data
 
 
@@ -86,10 +94,27 @@ def __today() -> str:
 
 def main():
     parser = argparse.ArgumentParser("Create slurm stats file")
-    parser.add_argument("--start", help="Start date in YYYY-MM-DD format", required=True, default="2020-01-01")
-    parser.add_argument("--end", help="End date in YYYY-MM-DD format", required=True, default=__today())
-    parser.add_argument("--user", help="Username", required=True, default="avajpeyi")
-    parser.add_argument("--fname", help="Output filename", required=False, default="jobstats.csv")
+    parser.add_argument(
+        "--start",
+        help="Start date in YYYY-MM-DD format",
+        required=True,
+        default="2020-01-01",
+    )
+    parser.add_argument(
+        "--end",
+        help="End date in YYYY-MM-DD format",
+        required=True,
+        default=__today(),
+    )
+    parser.add_argument(
+        "--user", help="Username", required=True, default="avajpeyi"
+    )
+    parser.add_argument(
+        "--fname",
+        help="Output filename",
+        required=False,
+        default="jobstats.csv",
+    )
     args = parser.parse_args()
     create_slurm_stats_file(args.start, args.end, args.user, args.fname)
 

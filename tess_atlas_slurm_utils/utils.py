@@ -6,8 +6,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("SLURM-UTILS")
 
 
-
-
 def get_python_source_command():
     path_to_python = shutil.which("python")
     path_to_env_activate = path_to_python.replace("python", "activate")
