@@ -68,7 +68,7 @@ def parse_args():
     parser.add_argument(
         "--quickrun",
         action="store_true",  # False by default
-        help="Adds the --quickrun flag to the run_toi command",
+        help="Adds the --quickrun flag to the run_toi command (only meant for testing)",
     )
     return parser.parse_args()
 
