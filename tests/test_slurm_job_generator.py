@@ -28,7 +28,7 @@ def test_folder_and_file_generation(outdir, monkeypatch):
     )
 
     # Check that the outdir has correct files and directories
-    assert os.listdir(outdir) == ['log_pe', 'log_gen', 'submit']
+    assert set{os.listdir(outdir)} == {'log_pe', 'log_gen', 'submit'}
     n_batches = n_tois // TEST_ARRAY_SIZE
     # Check that the slurmfiles created ['submit.sh', 'slurm_pe_{i}_job.sh', 'slurm_gen_{i}_job.sh']
     assert os.path.isfile(outdir / 'submit' / 'submit.sh')
